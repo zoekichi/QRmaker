@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QRコード作成アプリ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      margin-top: 1rem;
+    }
+    #qrcode {
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>QRコード作成アプリ</h1>
+  <input type="text" id="text" placeholder="テキストやURLを入力" />
+  <br/>
+  <button onclick="generateQRCode()">QRコードを作成</button>
+  <div id="qrcode"></div>
+
+  <!-- qrcode.min.js を読み込み（CDN使用）-->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <script>
+    let qrcode;
+
+    function generateQRCode() {
+      const text = document.getElementById("text").value;
+      const qrContainer = document.getElementById("qrcode");
+
+      // すでにあるQRコードをクリア
+      qrContainer.innerHTML = "";
+
+      if (!text.trim()) {
+        alert("テキストを入力してください");
+        return;
+      }
+
+      // QRコードを生成
+      qrcode = new QRCode(qrContainer, {
+        text: text,
+        width: 256,
+        height: 256,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+  </script>
+</body>
+</html>
