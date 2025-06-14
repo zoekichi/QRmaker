@@ -2,62 +2,111 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QRコード作成アプリ</title>
+  <title>QRコード印刷ラベル</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
       padding: 2rem;
     }
-    input[type="text"] {
-      width: 80%;
+
+    input, button {
+      font-size: 1rem;
+      margin: 0.5rem;
       padding: 0.5rem;
-      font-size: 1rem;
     }
-    button {
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      margin-top: 1rem;
+
+    #previewArea {
+      display: none;
     }
-    #qrcode {
-      margin-top: 2rem;
+
+    /* 印刷用スタイル */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #previewArea, #previewArea * {
+        visibility: visible;
+      }
+      #previewArea {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100mm;
+        height: 40mm;
+        padding: 5mm;
+        box-sizing: border-box;
+        font-size: 12pt;
+      }
+    }
+
+    .label {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 1rem;
+      border: 1px solid #000;
+      padding: 10px;
+      width: fit-content;
+      background-color: #fff;
+    }
+
+    #qrcode-print {
+      width: 100px;
+      height: 100px;
+    }
+
+    .label-text {
+      font-size: 14pt;
+      text-align: left;
     }
   </style>
 </head>
 <body>
-  <h1>QRコード作成アプリ</h1>
-  <input type="text" id="text" placeholder="テキストやURLを入力" />
+  <h1>QRコード ラベル作成・印刷</h1>
+  <input type="text" id="qrText" placeholder="テキストまたはURL" size="40" />
+  <input type="text" id="labelText" placeholder="宛名やメモ" size="40" />
   <br/>
-  <button onclick="generateQRCode()">QRコードを作成</button>
-  <div id="qrcode"></div>
+  <button onclick="generateAndPreview()">印刷用プレビューに表示</button>
+  <button onclick="window.print()">印刷</button>
 
-  <!-- qrcode.min.js を読み込み（CDN使用）-->
+  <div id="previewArea">
+    <div class="label">
+      <div id="qrcode-print"></div>
+      <div class="label-text" id="labelTextPrint"></div>
+    </div>
+  </div>
+
+  <!-- QRコード生成ライブラリ -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
   <script>
-    let qrcode;
+    function generateAndPreview() {
+      const qrText = document.getElementById("qrText").value.trim();
+      const labelText = document.getElementById("labelText").value.trim();
 
-    function generateQRCode() {
-      const text = document.getElementById("text").value;
-      const qrContainer = document.getElementById("qrcode");
-
-      // すでにあるQRコードをクリア
-      qrContainer.innerHTML = "";
-
-      if (!text.trim()) {
-        alert("テキストを入力してください");
+      if (!qrText) {
+        alert("QRコードにするテキストを入力してください。");
         return;
       }
 
-      // QRコードを生成
-      qrcode = new QRCode(qrContainer, {
-        text: text,
-        width: 256,
-        height: 256,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
+      // QRコードエリア初期化
+      const qrContainer = document.getElementById("qrcode-print");
+      qrContainer.innerHTML = "";
+
+      // QRコード生成
+      new QRCode(qrContainer, {
+        text: qrText,
+        width: 100,
+        height: 100,
         correctLevel: QRCode.CorrectLevel.H
       });
+
+      // ラベルテキスト挿入
+      document.getElementById("labelTextPrint").textContent = labelText || "";
+
+      // プレビュー表示
+      document.getElementById("previewArea").style.display = "block";
     }
   </script>
 </body>
